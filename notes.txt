@@ -1,0 +1,69 @@
+LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE    := levitator		<-output file name
+LOCAL_SRC_FILES := levitator.c		<-file with main 
+
+include $(BUILD_EXECUTABLE)
+
+
+export PATH=${PATH}:/home/udev/mydroid/ndk/build/prebuilt/linux-x86/arm-eabi-4.4.0/bin/
+
+/home/udev/mydroid/ndk/ndk-build 
+
+export ANDROID_ROOT=/home/udev/mydroid
+
+udev@ubuntu:~/android-sdk-linux_86/platform-tools/locals/openconnect/jni$ ./configure --host=arm-eabi CC=arm-eabi-gcc CPPFLAGS="-I$ANDROID_ROOT/build/platforms/android-3/arch-arm/usr/include/" CFLAGS="-nostdlib" LDFLAGS="-Wl,-rpath-link=$ANDROID_ROOT/build/platforms/android-3/arch-arm/usr/lib/ -L$ANDROID_ROOT/build/platforms/android-3/arch-arm/usr/lib"
+
+
+
+
+
+
+Here are the quick steps to be followed.
+
+Prerequisite:
+1. kernel sources from vendor say HTC wildfire(2.1 update-1)
+2. Android source code for Éclair
+3. Create a new folder called Kernel and copy the contents from the sources download via vendor
+
+Step1: Copy config.gz from running hardware
+
+adb pull /proc/config.gz
+gunzip config.gz
+mv config .config
+
+Step 2: Copy/Overwrite the .config file to the kenel root directory
+
+open .config file and search for
+CONFIG_MODULE_NAME1=y
+CONFIG_MODULE_NAME2=y
+
+and replace 'y' with 'm', we use CONFIG_MODULE_NAME1 as module
+
+CONFIG_MODULE_NAME1=m
+CONFIG_MODULE_NAME2=y
+
+Step 3: Check the active kernel version on the hardware using 'OR' if you are using own Boot.img then skip this and move on to step 4:
+
+adb shell
+# uname -a
+
+or you may get the details of the kernel from the Settings->Aboutphone->SoftwareInformation: Kernel version
+
+2.6.29-6fb59e13 HTC-kernel@xxxxxxxx
+
+open Makefile in the kernel folder, search and replace "EXTRAVERSION =" with "EXTRAVERSION =-6fb59e13"
+
+Step 4: Set the Env variables
+
+export ARCH=arm
+exprot CROSS_COMPILE=arm-eabi-
+export PATH=$PATH:~/eclair/prebuilt/linux-x86/toolchain/arm-eabi-4.4.0/bin/
+
+now perform make modules for make from the kernel sources
+
+kernel:$ make modules or make
+
+after successful compilation, check out the .ko files next to the sources in the same directory
